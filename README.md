@@ -1,13 +1,13 @@
 # Resepku - Aplikasi Resep Makanan
 
-Aplikasi mobile berbasis Flutter untuk menjelajahi berbagai resep makanan dan minuman, dibuat sebagai proyek tugas kuliah dengan fokus penerapan `StatelessWidget` & `StatefulWidget` yang tepat sesuai kebutuhan tiap komponen.
+Aplikasi mobile berbasis Flutter untuk menjelajahi berbagai resep makanan dan minuman, dibuat sebagai proyek tugas kuliah dengan fokus penerapan `StatelessWidget` yang tepat sesuai kebutuhan tiap komponen.
 
 ## Anggota Kelompok
 
-- Mr. A
-- Mr. B
-- Mr. C
-- Ms. D
+- DANELLA ANDRITYA PUTRI
+- HAIKAL AHMAD EL SALMAN
+- RAFI RAMADHANA BUKARYO
+- REVO NOVANDRA
 
 ## Fitur
 
