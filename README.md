@@ -11,13 +11,13 @@ Aplikasi mobile berbasis Flutter untuk menjelajahi berbagai resep makanan dan mi
 
 ## Fitur
 
-- **Splash Screen** - animasi koki memasak (Lottie)
+- **Splash Screen** - animasi koki memasak
 - **Onboarding** - 3 halaman perkenalan fitur, swipeable
 - **Login & Register** - alur autentikasi dengan data dummy
 - **Homepage**
-  - Carousel gambar makanan (auto-slide)
-  - Kategori makanan (scrollable horizontal)
-  - Rekomendasi resep trending (toggle layout grid/list)
+  - Carousel gambar makanan 
+  - Kategori makanan
+  - Rekomendasi resep trending
 - **Detail Resep** - bahan-bahan, langkah pembuatan, rating, profil uploader
 - **Search** - kategori makanan & minuman
 - **Favorite** - daftar resep favorit
@@ -27,8 +27,8 @@ Aplikasi mobile berbasis Flutter untuk menjelajahi berbagai resep makanan dan mi
 ## Tech Stack
 
 - **Flutter** & **Dart**
+- **Android Studio** - Android Emulator
 - **Material Symbols Rounded** - icon set
-- **Lottie** - animasi splash screen
 - **Font Inter** - typography
 
 ## Struktur Project
