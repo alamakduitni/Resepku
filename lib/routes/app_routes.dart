@@ -7,6 +7,7 @@ import '../screens/detail/recipe_detail_screen.dart';
 import '../screens/favorite/favorite_screen.dart';
 import '../screens/home/home_screen.dart';
 import '../screens/onboarding/onboarding_screen.dart';
+import '../screens/profile/edit_profile_screen.dart';
 import '../screens/profile/profile_screen.dart';
 import '../screens/search/search_screen.dart';
 import '../screens/splash/splash_screen.dart';
@@ -25,6 +26,7 @@ class AppRoutes {
   static const String search = '/search';
   static const String favorite = '/favorite';
   static const String profile = '/profile';
+  static const String editProfile = '/edit-profile';
   static const String addRecipe = '/add-recipe';
 
   static Route<dynamic> generateRoute(RouteSettings settings) {
@@ -47,6 +49,9 @@ class AppRoutes {
         return _page(const FavoriteScreen(), settings, _Transition.fade);
       case profile:
         return _page(const ProfileScreen(), settings, _Transition.fade);
+      case editProfile:
+        return _page(
+            const EditProfileScreen(), settings, _Transition.slideRight);
       case detail:
         return _page(
             const RecipeDetailScreen(), settings, _Transition.slideRight);

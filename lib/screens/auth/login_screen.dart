@@ -1,7 +1,6 @@
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 
-import '../../core/constants/app_colors.dart';
 import '../../core/constants/app_icons.dart';
 import '../../core/constants/app_text_styles.dart';
 import '../../data/api/api_client.dart';
@@ -48,8 +47,8 @@ class _LoginScreenState extends State<LoginScreen> {
     }
     setState(() => _loading = true);
     try {
-      await UserStore.instance.login(
-          _emailController.text.trim(), _passwordController.text);
+      await UserStore.instance
+          .login(_emailController.text.trim(), _passwordController.text);
     } on ApiException catch (e) {
       if (!mounted) return;
       setState(() => _loading = false);
@@ -124,15 +123,6 @@ class _LoginScreenState extends State<LoginScreen> {
                       ),
                     ],
                   ),
-                ),
-              ),
-              const SizedBox(height: 8),
-              Center(
-                child: Text(
-                  'Data akun masih dummy — isi email & sandi apa saja.',
-                  textAlign: TextAlign.center,
-                  style: AppTextStyles.caption
-                      .copyWith(color: AppColors.textMuted),
                 ),
               ),
             ],

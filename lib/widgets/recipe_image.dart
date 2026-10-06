@@ -7,6 +7,11 @@ import '../core/utils/string_formatter.dart';
 bool _isNetwork(String path) =>
     path.startsWith('http://') || path.startsWith('https://');
 
+// Di web, file gambar dari server Laravel tidak membawa header CORS
+// sehingga gagal dimuat lewat XHR. `fallback` menampilkannya memakai
+// elemen <img> biasa jika itu terjadi.
+const _webStrategy = WebHtmlElementStrategy.fallback;
+
 /// Gambar resep dari server (URL) atau asset, dengan fade-in halus dan
 /// fallback ikon.
 class RecipeImage extends StatelessWidget {
@@ -40,6 +45,7 @@ class RecipeImage extends StatelessWidget {
       return Image.network(
         path,
         fit: BoxFit.cover,
+        webHtmlElementStrategy: _webStrategy,
         frameBuilder: frameBuilder,
         errorBuilder: errorBuilder,
       );
@@ -68,11 +74,35 @@ class UploaderAvatar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    ImageProvider? provider;
+    final initials = Container(
+      color: AppColors.surfaceElevated,
+      alignment: Alignment.center,
+      child: Text(
+        StringFormatter.initials(name),
+        style: TextStyle(
+          fontSize: radius * 0.8,
+          fontWeight: FontWeight.w600,
+          color: AppColors.textPrimary,
+        ),
+      ),
+    );
+    Widget fallback(BuildContext context, Object error, StackTrace? _) =>
+        initials;
+
+    // Image (bukan CircleAvatar.backgroundImage) agar fallback <img> di web
+    // tetap bisa dipakai; backgroundImage dilukis lewat canvas.
+    final Widget photo;
     if (_isNetwork(image)) {
-      provider = NetworkImage(image);
+      photo = Image.network(
+        image,
+        fit: BoxFit.cover,
+        webHtmlElementStrategy: _webStrategy,
+        errorBuilder: fallback,
+      );
     } else if (image.isNotEmpty) {
-      provider = AssetImage(image);
+      photo = Image.asset(image, fit: BoxFit.cover, errorBuilder: fallback);
+    } else {
+      photo = initials;
     }
 
     return Semantics(
@@ -84,21 +114,8 @@ class UploaderAvatar extends StatelessWidget {
           shape: BoxShape.circle,
           gradient: AppColors.primaryGradient,
         ),
-        child: CircleAvatar(
-          radius: radius,
-          backgroundColor: AppColors.surfaceElevated,
-          backgroundImage: provider,
-          onBackgroundImageError: provider == null ? null : (_, __) {},
-          child: provider == null
-              ? Text(
-                  StringFormatter.initials(name),
-                  style: TextStyle(
-                    fontSize: radius * 0.8,
-                    fontWeight: FontWeight.w600,
-                    color: AppColors.textPrimary,
-                  ),
-                )
-              : null,
+        child: ClipOval(
+          child: SizedBox.square(dimension: radius * 2, child: photo),
         ),
       ),
     );

@@ -222,14 +222,22 @@ class _CuteAvatarState extends State<CuteAvatar> with TickerProviderStateMixin {
       child: SizedBox.square(dimension: widget.size, child: avatar),
     );
 
-    if (!widget.interactive) return labelled;
+    // Center menjaga ukuran tetap [size] walau induknya memaksa lebar
+    // penuh, mis. slot ikon AlertDialog.
+    if (!widget.interactive) {
+      return Center(widthFactor: 1, heightFactor: 1, child: labelled);
+    }
 
-    return MouseRegion(
-      cursor: SystemMouseCursors.click,
-      child: GestureDetector(
-        behavior: HitTestBehavior.opaque,
-        onTap: _celebrate,
-        child: labelled,
+    return Center(
+      widthFactor: 1,
+      heightFactor: 1,
+      child: MouseRegion(
+        cursor: SystemMouseCursors.click,
+        child: GestureDetector(
+          behavior: HitTestBehavior.opaque,
+          onTap: _celebrate,
+          child: labelled,
+        ),
       ),
     );
   }

@@ -51,6 +51,9 @@ class ProfileScreen extends StatelessWidget {
     }
   }
 
+  void _openEditProfile(BuildContext context) =>
+      Navigator.of(context).pushNamed(AppRoutes.editProfile);
+
   void _openAvatarPicker(BuildContext context) {
     showModalBottomSheet<bool>(
       context: context,
@@ -142,11 +145,21 @@ class ProfileScreen extends StatelessWidget {
                 const SizedBox(height: 20),
                 FadeSlideIn(
                   delay: AppMotion.staggerFor(3),
-                  child: const _InfoCard(),
+                  child: _InfoCard(onEdit: () => _openEditProfile(context)),
                 ),
                 const SizedBox(height: 24),
                 FadeSlideIn(
                   delay: AppMotion.staggerFor(4),
+                  child: AppButton(
+                    label: 'Edit Profil',
+                    icon: AppIcons.edit,
+                    variant: AppButtonVariant.outline,
+                    onPressed: () => _openEditProfile(context),
+                  ),
+                ),
+                const SizedBox(height: 12),
+                FadeSlideIn(
+                  delay: AppMotion.staggerFor(5),
                   child: AppButton(
                     label: 'Keluar',
                     icon: AppIcons.logout,
@@ -301,7 +314,10 @@ class _StatsRow extends StatelessWidget {
 }
 
 class _InfoCard extends StatelessWidget {
-  const _InfoCard();
+  /// Dipanggil saat baris yang belum diisi diketuk.
+  final VoidCallback onEdit;
+
+  const _InfoCard({required this.onEdit});
 
   @override
   Widget build(BuildContext context) {
@@ -321,12 +337,14 @@ class _InfoCard extends StatelessWidget {
               icon: AppIcons.call,
               label: 'Nomor Telepon',
               value: user?.phone,
+              onEdit: onEdit,
             ),
             const Divider(height: 1, indent: 16, endIndent: 16),
             _InfoRow(
               icon: AppIcons.locationOn,
               label: 'Alamat',
               value: user?.address,
+              onEdit: onEdit,
             ),
             const Divider(height: 1, indent: 16, endIndent: 16),
             _InfoRow(
@@ -335,6 +353,7 @@ class _InfoCard extends StatelessWidget {
               value: user?.birthDate == null
                   ? null
                   : StringFormatter.date(user!.birthDate!),
+              onEdit: onEdit,
             ),
           ],
         ),
@@ -349,11 +368,13 @@ class _InfoRow extends StatelessWidget {
 
   /// Kosong/null berarti pengguna belum mengisi data ini.
   final String? value;
+  final VoidCallback onEdit;
 
   const _InfoRow({
     required this.icon,
     required this.label,
     required this.value,
+    required this.onEdit,
   });
 
   void _copy(BuildContext context, String text) {
@@ -367,11 +388,12 @@ class _InfoRow extends StatelessWidget {
     final filled = text.isNotEmpty;
 
     return Tooltip(
-      message: filled ? 'Ketuk untuk menyalin' : '$label belum diisi',
+      message: filled ? 'Ketuk untuk menyalin' : 'Ketuk untuk mengisi',
       child: Pressable(
-        onTap: filled ? () => _copy(context, text) : null,
-        semanticLabel:
-            filled ? '$label: $text. Ketuk untuk menyalin' : '$label belum diisi',
+        onTap: filled ? () => _copy(context, text) : onEdit,
+        semanticLabel: filled
+            ? '$label: $text. Ketuk untuk menyalin'
+            : '$label belum diisi. Ketuk untuk mengisi',
         hoverScale: 1.0,
         pressedScale: 0.98,
         child: Padding(

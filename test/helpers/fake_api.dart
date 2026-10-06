@@ -130,7 +130,12 @@ class FakeApi {
             return _json({
               'user': {
                 ..._userJson,
-                ...{'avatarIndex': body['avatar_index']}
+                if (body.containsKey('avatar_index'))
+                  'avatarIndex': body['avatar_index'],
+                for (final key in ['name', 'email', 'phone', 'address'])
+                  if (body.containsKey(key)) key: body[key],
+                if (body.containsKey('birth_date'))
+                  'birthDate': body['birth_date'],
               },
             });
           case 'POST /recipes':

@@ -10,6 +10,7 @@ import 'package:resepku/data/models/recipe_model.dart';
 import 'package:resepku/data/stores/recipe_store.dart';
 import 'package:resepku/data/stores/user_store.dart';
 import 'package:resepku/routes/app_routes.dart';
+import 'package:resepku/widgets/cute_avatar.dart';
 
 import 'helpers/fake_api.dart';
 
@@ -291,5 +292,69 @@ void main() {
     expect(find.text('Email atau kata sandi salah.'), findsOneWidget);
     expect(UserStore.instance.user.value, isNull);
     await tester.pump(const Duration(seconds: 4)); // tutup toast
+  });
+
+  testWidgets('Keluar dari Profil kembali ke halaman Masuk', (tester) async {
+    await _pumpRoute(tester, AppRoutes.profile);
+
+    await _tapVisible(tester, find.text('Keluar'));
+    expect(find.text('Keluar dari akun?'), findsOneWidget);
+    await tester.tap(find.text('Keluar').last);
+    for (var i = 0; i < 10; i++) {
+      await tester
+          .runAsync(() => Future.delayed(const Duration(milliseconds: 20)));
+      await tester.pump(const Duration(milliseconds: 100));
+    }
+
+    expect(api.requests, contains('POST /logout'));
+    expect(UserStore.instance.user.value, isNull);
+    expect(find.text('Keluar dari akun?'), findsNothing);
+    expect(find.text('Masuk'), findsWidgets);
+  });
+
+  testWidgets('Avatar di dialog Keluar tidak menutupi tombol', (tester) async {
+    await _pumpRoute(tester, AppRoutes.profile);
+    await _tapVisible(tester, find.text('Keluar'));
+
+    final avatar = find.descendant(
+        of: find.byType(CuteAvatar), matching: find.byType(SizedBox));
+    expect(tester.getSize(avatar.last).width, 72);
+    await tester.tap(find.text('Batal'));
+    await tester.pump(const Duration(milliseconds: 400));
+  });
+
+  testWidgets('Edit profil menyimpan data ke server', (tester) async {
+    await _pumpRoute(tester, AppRoutes.profile);
+    await _tapVisible(tester, find.text('Edit Profil'));
+    for (var i = 0; i < 6; i++) {
+      await tester.pump(const Duration(milliseconds: 100));
+    }
+
+    final name = find.widgetWithText(TextFormField, 'Sari Wulandari');
+    await tester.enterText(name, 'Sari W');
+    await tester.enterText(
+        find.widgetWithText(TextFormField, 'Surabaya, Jawa Timur'), '');
+    await _tapVisible(tester, find.text('Simpan Perubahan'));
+    for (var i = 0; i < 10; i++) {
+      await tester
+          .runAsync(() => Future.delayed(const Duration(milliseconds: 20)));
+      await tester.pump(const Duration(milliseconds: 100));
+    }
+
+    expect(api.requests, contains('PUT /me'));
+    expect(UserStore.instance.name, 'Sari W');
+    expect(UserStore.instance.user.value?.address, isNull);
+    expect(find.text('Sari W'), findsOneWidget); // kembali ke Profil
+    await tester.pump(const Duration(seconds: 4)); // tutup toast
+  });
+
+  testWidgets('Edit profil menolak nama kosong', (tester) async {
+    await _pumpRoute(tester, AppRoutes.editProfile);
+    await tester.enterText(
+        find.widgetWithText(TextFormField, 'Sari Wulandari'), '');
+    await _tapVisible(tester, find.text('Simpan Perubahan'));
+
+    expect(find.text('Nama wajib diisi'), findsOneWidget);
+    expect(api.requests, isNot(contains('PUT /me')));
   });
 }

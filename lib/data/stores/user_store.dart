@@ -91,6 +91,32 @@ class UserStore {
     RecipeStore.instance.reset();
   }
 
+  /// Simpan perubahan data akun. Field opsional yang dikosongkan dikirim
+  /// sebagai null agar terhapus di server.
+  Future<void> updateProfile({
+    required String name,
+    required String email,
+    String? phone,
+    String? address,
+    DateTime? birthDate,
+  }) async {
+    String? orNull(String? v) =>
+        (v == null || v.trim().isEmpty) ? null : v.trim();
+
+    final data = await _api.put('/me', {
+      'name': name.trim(),
+      'email': email.trim(),
+      'phone': orNull(phone),
+      'address': orNull(address),
+      'birth_date': birthDate == null
+          ? null
+          : '${birthDate.year.toString().padLeft(4, '0')}-'
+              '${birthDate.month.toString().padLeft(2, '0')}-'
+              '${birthDate.day.toString().padLeft(2, '0')}',
+    }) as Map<String, dynamic>;
+    _setUser(UserModel.fromJson(data['user'] as Map<String, dynamic>));
+  }
+
   /// Simpan karakter yang sedang dipratinjau di [avatarIndex] ke server.
   /// Jika gagal, avatar dikembalikan ke pilihan yang tersimpan.
   Future<void> saveAvatar() async {
