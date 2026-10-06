@@ -5,18 +5,31 @@ class AppTextStyles {
   AppTextStyles._();
 
   static const String fontFamily = 'Inter';
+
+  static const TextStyle display = TextStyle(
+    fontFamily: fontFamily,
+    fontSize: 32,
+    fontWeight: FontWeight.w700,
+    color: AppColors.textPrimary,
+    height: 1.15,
+    letterSpacing: -0.8,
+  );
+
   static const TextStyle heading1 = TextStyle(
     fontFamily: fontFamily,
     fontSize: 26,
     fontWeight: FontWeight.w700,
     color: AppColors.textPrimary,
     height: 1.25,
+    letterSpacing: -0.4,
   );
+
   static const TextStyle heading2 = TextStyle(
     fontFamily: fontFamily,
     fontSize: 18,
     fontWeight: FontWeight.w600,
     color: AppColors.textPrimary,
+    letterSpacing: -0.2,
   );
 
   static const TextStyle heading3 = TextStyle(
@@ -32,6 +45,7 @@ class AppTextStyles {
     fontSize: 16,
     fontWeight: FontWeight.w400,
     color: AppColors.textPrimary,
+    height: 1.5,
   );
 
   static const TextStyle bodyMedium = TextStyle(
@@ -39,6 +53,7 @@ class AppTextStyles {
     fontSize: 14,
     fontWeight: FontWeight.w400,
     color: AppColors.textSecondary,
+    height: 1.45,
   );
 
   static const TextStyle bodySmall = TextStyle(
@@ -64,14 +79,14 @@ class AppTextStyles {
 
   static const TextStyle caption = TextStyle(
     fontFamily: fontFamily,
-    fontSize: 11,
+    fontSize: 12,
     fontWeight: FontWeight.w500,
     color: AppColors.textSecondary,
   );
 
   static const TextStyle button = TextStyle(
     fontFamily: fontFamily,
-    fontSize: 14,
+    fontSize: 15,
     fontWeight: FontWeight.w600,
     color: AppColors.textOnPrimary,
   );
@@ -86,7 +101,7 @@ class AppTextStyles {
   static const TextStyle navLabelActive = TextStyle(
     fontFamily: fontFamily,
     fontSize: 11,
-    fontWeight: FontWeight.w600,
+    fontWeight: FontWeight.w700,
     color: AppColors.primary,
   );
 

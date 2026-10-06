@@ -39,6 +39,26 @@ class AppIcons {
   static const IconData error = Symbols.error;
   static const IconData warning = Symbols.warning;
   static const IconData info = Symbols.info;
+  static const IconData visibility = Symbols.visibility;
+  static const IconData edit = Symbols.edit;
+  static const IconData logout = Symbols.logout;
+  static const IconData check = Symbols.check;
+  static const IconData close = Symbols.close;
+  static const IconData delete = Symbols.delete;
+  static const IconData remove = Symbols.remove;
+  static const IconData timer = Symbols.timer;
+  static const IconData restaurant = Symbols.restaurant;
+  static const IconData restaurantMenu = Symbols.restaurant_menu;
+  static const IconData arrowForward = Symbols.arrow_forward;
+  static const IconData basket = Symbols.shopping_basket;
+  static const IconData listNumbered = Symbols.format_list_numbered;
+  static const IconData photoLibrary = Symbols.photo_library;
+  static const IconData addPhoto = Symbols.add_photo_alternate;
+  static const IconData sparkle = Symbols.auto_awesome;
+  static const IconData bolt = Symbols.bolt;
+  static const IconData fire = Symbols.local_fire_department;
+  static const IconData trending = Symbols.trending_up;
+  static const IconData receipt = Symbols.receipt_long;
 
   static IconData categoryIcon(String key) {
     switch (key) {

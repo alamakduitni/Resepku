@@ -98,36 +98,42 @@ class _ToastCardState extends State<_ToastCard> {
             duration: const Duration(milliseconds: 250),
             child: Align(
               alignment: Alignment.centerRight,
-              child: Container(
-                constraints: const BoxConstraints(maxWidth: 320),
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
-                decoration: BoxDecoration(
-                  color: AppColors.surfaceElevated,
-                  borderRadius: BorderRadius.circular(12),
-                  border: Border(left: BorderSide(color: color, width: 4)),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withOpacity(0.3),
-                      blurRadius: 12,
-                      offset: const Offset(0, 4),
-                    ),
-                  ],
-                ),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Icon(icon, color: color, size: 20),
-                    const SizedBox(width: 10),
-                    Flexible(
-                      child: Text(
-                        widget.message,
-                        style: AppTextStyles.bodyMedium.copyWith(
-                          color: AppColors.textPrimary,
+              child: Semantics(
+                liveRegion: true,
+                child: GestureDetector(
+                  onTap: widget.onDismissed,
+                  child: Container(
+                    constraints: const BoxConstraints(maxWidth: 320),
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 14, vertical: 12),
+                    decoration: BoxDecoration(
+                      color: AppColors.surfaceElevated,
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border(left: BorderSide(color: color, width: 4)),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withValues(alpha: 0.3),
+                          blurRadius: 12,
+                          offset: const Offset(0, 4),
                         ),
-                      ),
+                      ],
                     ),
-                  ],
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(icon, color: color, size: 20),
+                        const SizedBox(width: 10),
+                        Flexible(
+                          child: Text(
+                            widget.message,
+                            style: AppTextStyles.bodyMedium.copyWith(
+                              color: AppColors.textPrimary,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
                 ),
               ),
             ),

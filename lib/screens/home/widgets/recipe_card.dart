@@ -4,6 +4,9 @@ import '../../../core/constants/app_icons.dart';
 import '../../../core/constants/app_text_styles.dart';
 import '../../../core/utils/string_formatter.dart';
 import '../../../data/models/recipe_model.dart';
+import '../../../widgets/favorite_button.dart';
+import '../../../widgets/pressable.dart';
+import '../../../widgets/recipe_image.dart';
 
 enum RecipeCardLayout { grid, list }
 
@@ -11,153 +14,159 @@ class RecipeCard extends StatelessWidget {
   final RecipeModel recipe;
   final RecipeCardLayout layout;
   final VoidCallback onTap;
-  final bool isFavorited;
+
+  /// Tag Hero untuk transisi gambar ke halaman detail. Null = tanpa Hero.
+  final String? heroTag;
 
   const RecipeCard({
     super.key,
     required this.recipe,
     required this.onTap,
     this.layout = RecipeCardLayout.grid,
-    this.isFavorited = false,
+    this.heroTag,
   });
+
+  static String heroTagFor(RecipeModel recipe) => 'recipe-image-${recipe.id}';
 
   @override
   Widget build(BuildContext context) {
-    return layout == RecipeCardLayout.grid ? _buildGrid() : _buildList();
+    return Pressable(
+      onTap: onTap,
+      semanticLabel: 'Buka resep ${recipe.name}',
+      hoverGlowColor: AppColors.primary,
+      pressedScale: 0.97,
+      borderRadius: BorderRadius.circular(20),
+      child: layout == RecipeCardLayout.grid ? _buildGrid() : _buildList(),
+    );
+  }
+
+  Widget _image({double iconSize = 32}) {
+    final image = RecipeImage(path: recipe.image, iconSize: iconSize);
+    return heroTag == null ? image : Hero(tag: heroTag!, child: image);
   }
 
   Widget _buildGrid() {
-    return InkWell(
-      onTap: onTap,
-      borderRadius: BorderRadius.circular(16),
-      child: Container(
-        decoration: BoxDecoration(
-          color: AppColors.surface,
-          borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: AppColors.border),
-        ),
-        clipBehavior: Clip.antiAlias,
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            AspectRatio(
-              aspectRatio: 1.3,
-              child: Stack(
-                fit: StackFit.expand,
-                children: [
-                  _recipeImage(),
-                  Positioned(
-                      top: 8,
-                      left: 8,
-                      child: _CategoryBadge(text: recipe.category)),
-                  Positioned(
-                      top: 8,
-                      right: 8,
-                      child: _DisabledLoveIcon(isFavorited: isFavorited)),
-                ],
-              ),
-            ),
-            Padding(
-              padding: const EdgeInsets.all(10),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    recipe.name,
-                    style: AppTextStyles.heading3,
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
+    return Container(
+      decoration: BoxDecoration(
+        color: AppColors.surface,
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: AppColors.border),
+      ),
+      clipBehavior: Clip.antiAlias,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Expanded(
+            child: Stack(
+              fit: StackFit.expand,
+              children: [
+                _image(),
+                const DecoratedBox(
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      begin: Alignment.bottomCenter,
+                      end: Alignment.center,
+                      colors: [Color(0x99000000), Colors.transparent],
+                    ),
                   ),
-                  const SizedBox(height: 6),
-                  Row(
-                    children: [
-                      const Icon(AppIcons.schedule,
-                          size: 13, color: AppColors.textSecondary),
-                      const SizedBox(width: 4),
-                      Text(
-                        StringFormatter.cookingTime(recipe.cookingTimeMinutes),
-                        style: AppTextStyles.caption,
-                      ),
-                    ],
+                ),
+                Positioned(
+                  top: 8,
+                  left: 8,
+                  right: 52,
+                  child: Align(
+                    alignment: Alignment.centerLeft,
+                    child: _CategoryBadge(text: recipe.category),
                   ),
-                  const SizedBox(height: 8),
-                  _UploaderRow(
-                      name: recipe.uploader.name,
-                      avatar: recipe.uploader.profileImage),
-                ],
-              ),
+                ),
+                Positioned(
+                  top: 2,
+                  right: 2,
+                  child: FavoriteButton(recipeId: recipe.id, size: 34),
+                ),
+                Positioned(
+                  left: 8,
+                  bottom: 8,
+                  child: _RatingPill(rating: recipe.rating),
+                ),
+              ],
             ),
-          ],
-        ),
+          ),
+          Padding(
+            padding: const EdgeInsets.fromLTRB(12, 10, 12, 12),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  recipe.name,
+                  style: AppTextStyles.heading3,
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                ),
+                const SizedBox(height: 6),
+                _TimeRow(minutes: recipe.cookingTimeMinutes),
+                const SizedBox(height: 8),
+                _UploaderRow(
+                    name: recipe.uploader.name,
+                    avatar: recipe.uploader.profileImage),
+              ],
+            ),
+          ),
+        ],
       ),
     );
   }
 
   Widget _buildList() {
-    return InkWell(
-      onTap: onTap,
-      borderRadius: BorderRadius.circular(16),
-      child: Container(
-        padding: const EdgeInsets.all(10),
-        decoration: BoxDecoration(
-          color: AppColors.surface,
-          borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: AppColors.border),
-        ),
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            ClipRRect(
-              borderRadius: BorderRadius.circular(12),
-              child: SizedBox(width: 88, height: 88, child: _recipeImage()),
-            ),
-            const SizedBox(width: 12),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  _CategoryBadge(text: recipe.category),
-                  const SizedBox(height: 6),
-                  Text(
-                    recipe.name,
-                    style: AppTextStyles.heading3,
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                  const SizedBox(height: 6),
-                  Row(
-                    children: [
-                      const Icon(AppIcons.schedule,
-                          size: 13, color: AppColors.textSecondary),
-                      const SizedBox(width: 4),
-                      Text(
-                        StringFormatter.cookingTime(recipe.cookingTimeMinutes),
-                        style: AppTextStyles.caption,
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 8),
-                  _UploaderRow(
-                      name: recipe.uploader.name,
-                      avatar: recipe.uploader.profileImage),
-                ],
-              ),
-            ),
-            _DisabledLoveIcon(isFavorited: isFavorited),
-          ],
-        ),
+    return Container(
+      padding: const EdgeInsets.all(10),
+      decoration: BoxDecoration(
+        color: AppColors.surface,
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: AppColors.border),
       ),
-    );
-  }
-
-  Widget _recipeImage() {
-    return Image.asset(
-      recipe.image,
-      fit: BoxFit.cover,
-      errorBuilder: (context, error, stackTrace) => Container(
-        color: AppColors.surfaceElevated,
-        child: const Icon(Icons.restaurant,
-            color: AppColors.disabledForeground, size: 28),
+      child: Row(
+        children: [
+          ClipRRect(
+            borderRadius: BorderRadius.circular(14),
+            child: SizedBox(width: 96, height: 96, child: _image(iconSize: 26)),
+          ),
+          const SizedBox(width: 14),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    Flexible(
+                        child: _CategoryBadge(
+                            text: recipe.category, subtle: true)),
+                    const SizedBox(width: 8),
+                    _RatingPill(rating: recipe.rating, subtle: true),
+                  ],
+                ),
+                const SizedBox(height: 6),
+                Text(
+                  recipe.name,
+                  style: AppTextStyles.heading3,
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                ),
+                const SizedBox(height: 6),
+                _TimeRow(minutes: recipe.cookingTimeMinutes),
+                const SizedBox(height: 6),
+                _UploaderRow(
+                    name: recipe.uploader.name,
+                    avatar: recipe.uploader.profileImage),
+              ],
+            ),
+          ),
+          FavoriteButton(
+            recipeId: recipe.id,
+            size: 36,
+            background: AppColors.surfaceElevated,
+          ),
+        ],
       ),
     );
   }
@@ -165,44 +174,86 @@ class RecipeCard extends StatelessWidget {
 
 class _CategoryBadge extends StatelessWidget {
   final String text;
+  final bool subtle;
 
-  const _CategoryBadge({required this.text});
+  const _CategoryBadge({required this.text, this.subtle = false});
 
   @override
   Widget build(BuildContext context) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
       decoration: BoxDecoration(
-        color: AppColors.background.withOpacity(0.75),
+        color: subtle
+            ? AppColors.primaryMuted
+            : AppColors.background.withValues(alpha: 0.78),
         borderRadius: BorderRadius.circular(8),
       ),
       child: Text(
         text,
-        style: AppTextStyles.caption.copyWith(color: AppColors.textPrimary),
+        maxLines: 1,
+        overflow: TextOverflow.ellipsis,
+        style: AppTextStyles.caption.copyWith(
+          color: subtle ? AppColors.primaryLight : AppColors.textPrimary,
+          fontSize: 11,
+        ),
       ),
     );
   }
 }
 
-class _DisabledLoveIcon extends StatelessWidget {
-  final bool isFavorited;
+class _RatingPill extends StatelessWidget {
+  final double rating;
+  final bool subtle;
 
-  const _DisabledLoveIcon({this.isFavorited = false});
+  const _RatingPill({required this.rating, this.subtle = false});
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.all(6),
-      decoration: const BoxDecoration(
-        color: AppColors.background,
-        shape: BoxShape.circle,
+      padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 3),
+      decoration: BoxDecoration(
+        color: subtle
+            ? AppColors.surfaceElevated
+            : AppColors.background.withValues(alpha: 0.78),
+        borderRadius: BorderRadius.circular(8),
       ),
-      child: Icon(
-        AppIcons.favoriteBorder,
-        size: 16,
-        fill: isFavorited ? 1 : 0,
-        color: isFavorited ? AppColors.primary : AppColors.disabledForeground,
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(rating == 0 ? AppIcons.sparkle : AppIcons.star,
+              size: 13, fill: 1, color: AppColors.star),
+          const SizedBox(width: 3),
+          Text(
+            // Resep baru belum punya penilaian.
+            rating == 0 ? 'Baru' : StringFormatter.rating(rating),
+            style: AppTextStyles.caption.copyWith(
+              color: AppColors.textPrimary,
+              fontWeight: FontWeight.w700,
+              fontSize: 11,
+            ),
+          ),
+        ],
       ),
+    );
+  }
+}
+
+class _TimeRow extends StatelessWidget {
+  final int minutes;
+
+  const _TimeRow({required this.minutes});
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      children: [
+        const Icon(AppIcons.schedule, size: 14, color: AppColors.primaryLight),
+        const SizedBox(width: 4),
+        Text(
+          StringFormatter.cookingTime(minutes),
+          style: AppTextStyles.caption,
+        ),
+      ],
     );
   }
 }
@@ -217,12 +268,7 @@ class _UploaderRow extends StatelessWidget {
   Widget build(BuildContext context) {
     return Row(
       children: [
-        CircleAvatar(
-          radius: 9,
-          backgroundColor: AppColors.surfaceElevated,
-          backgroundImage: AssetImage(avatar),
-          onBackgroundImageError: (_, __) {},
-        ),
+        UploaderAvatar(name: name, image: avatar, radius: 9),
         const SizedBox(width: 6),
         Expanded(
           child: Text(
