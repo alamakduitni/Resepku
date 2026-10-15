@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import '../core/constants/app_colors.dart';
 import '../core/constants/app_icons.dart';
+import '../core/constants/app_motion.dart';
 import '../core/constants/app_text_styles.dart';
 import '../routes/app_routes.dart';
+import 'pressable.dart';
 
 class CustomBottomNav extends StatelessWidget {
   final int currentIndex;
@@ -43,44 +45,59 @@ class CustomBottomNav extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12),
-      decoration: const BoxDecoration(
+      decoration: BoxDecoration(
         color: AppColors.surface,
-        border: Border(top: BorderSide(color: AppColors.border, width: 1)),
+        border:
+            const Border(top: BorderSide(color: AppColors.border, width: 1)),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.35),
+            blurRadius: 20,
+            offset: const Offset(0, -6),
+          ),
+        ],
       ),
       child: SafeArea(
         top: false,
-        child: SizedBox(
-          height: 64,
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              _NavItem(
-                icon: AppIcons.home,
-                label: 'Beranda',
-                isActive: currentIndex == indexHome,
-                onTap: () => _onItemTap(context, indexHome),
+        child: Center(
+          heightFactor: 1,
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: 600),
+            child: SizedBox(
+              height: 68,
+              child: Row(
+                children: [
+                  _NavItem(
+                    icon: AppIcons.home,
+                    label: 'Beranda',
+                    isActive: currentIndex == indexHome,
+                    onTap: () => _onItemTap(context, indexHome),
+                  ),
+                  _NavItem(
+                    icon: AppIcons.search,
+                    label: 'Cari',
+                    isActive: currentIndex == indexSearch,
+                    onTap: () => _onItemTap(context, indexSearch),
+                  ),
+                  Expanded(
+                    child:
+                        _AddButton(onTap: () => _onItemTap(context, indexAdd)),
+                  ),
+                  _NavItem(
+                    icon: AppIcons.favoriteBorder,
+                    label: 'Favorit',
+                    isActive: currentIndex == indexFavorite,
+                    onTap: () => _onItemTap(context, indexFavorite),
+                  ),
+                  _NavItem(
+                    icon: AppIcons.person,
+                    label: 'Profil',
+                    isActive: currentIndex == indexProfile,
+                    onTap: () => _onItemTap(context, indexProfile),
+                  ),
+                ],
               ),
-              _NavItem(
-                icon: AppIcons.search,
-                label: 'Cari',
-                isActive: currentIndex == indexSearch,
-                onTap: () => _onItemTap(context, indexSearch),
-              ),
-              _AddButton(onTap: () => _onItemTap(context, indexAdd)),
-              _NavItem(
-                icon: AppIcons.favoriteBorder,
-                label: 'Favorit',
-                isActive: currentIndex == indexFavorite,
-                onTap: () => _onItemTap(context, indexFavorite),
-              ),
-              _NavItem(
-                icon: AppIcons.person,
-                label: 'Profil',
-                isActive: currentIndex == indexProfile,
-                onTap: () => _onItemTap(context, indexProfile),
-              ),
-            ],
+            ),
           ),
         ),
       ),
@@ -103,23 +120,45 @@ class _NavItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final color = isActive ? AppColors.primary : AppColors.textSecondary;
-
-    return InkWell(
-      onTap: onTap,
-      borderRadius: BorderRadius.circular(12),
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
+    return Expanded(
+      child: Pressable(
+        onTap: onTap,
+        selected: isActive,
+        semanticLabel: label,
+        pressedScale: 0.9,
+        hoverScale: 1.06,
+        borderRadius: BorderRadius.circular(16),
         child: Column(
-          mainAxisSize: MainAxisSize.min,
+          mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(icon, color: color, size: 24),
-            const SizedBox(height: 2),
-            Text(
-              label,
+            AnimatedContainer(
+              duration: AppMotion.medium,
+              curve: AppMotion.emphasized,
+              width: isActive ? 56 : 40,
+              height: 32,
+              decoration: BoxDecoration(
+                color: isActive ? AppColors.primaryMuted : Colors.transparent,
+                borderRadius: BorderRadius.circular(16),
+              ),
+              child: TweenAnimationBuilder<double>(
+                tween: Tween(end: isActive ? 1 : 0),
+                duration: AppMotion.medium,
+                builder: (context, t, _) => Icon(
+                  icon,
+                  size: 24,
+                  fill: t,
+                  color:
+                      Color.lerp(AppColors.textSecondary, AppColors.primary, t),
+                ),
+              ),
+            ),
+            const SizedBox(height: 4),
+            AnimatedDefaultTextStyle(
+              duration: AppMotion.fast,
               style: isActive
                   ? AppTextStyles.navLabelActive
                   : AppTextStyles.navLabel,
+              child: Text(label, maxLines: 1),
             ),
           ],
         ),
@@ -128,26 +167,55 @@ class _NavItem extends StatelessWidget {
   }
 }
 
-class _AddButton extends StatelessWidget {
+class _AddButton extends StatefulWidget {
   final VoidCallback onTap;
 
   const _AddButton({required this.onTap});
 
   @override
+  State<_AddButton> createState() => _AddButtonState();
+}
+
+class _AddButtonState extends State<_AddButton> {
+  double _turns = 0;
+
+  void _handleTap() {
+    setState(() => _turns += 0.25);
+    widget.onTap();
+  }
+
+  @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: onTap,
+    return Center(
       child: Transform.translate(
         offset: const Offset(0, -14),
-        child: Container(
-          width: 52,
-          height: 52,
-          decoration: const BoxDecoration(
-            color: AppColors.primary,
-            shape: BoxShape.circle,
+        child: Tooltip(
+          message: 'Tambah resep',
+          child: Pressable(
+            onTap: _handleTap,
+            semanticLabel: 'Tambah resep',
+            pressedScale: 0.88,
+            hoverScale: 1.08,
+            borderRadius: BorderRadius.circular(30),
+            hoverGlowColor: AppColors.primary,
+            child: Container(
+              width: 56,
+              height: 56,
+              decoration: BoxDecoration(
+                gradient: AppColors.primaryGradient,
+                shape: BoxShape.circle,
+                border: Border.all(color: AppColors.background, width: 4),
+                boxShadow: AppColors.glow(AppColors.primary, strength: 0.45),
+              ),
+              child: AnimatedRotation(
+                turns: _turns,
+                duration: AppMotion.slow,
+                curve: AppMotion.bounce,
+                child: const Icon(AppIcons.add,
+                    color: AppColors.textOnPrimary, size: 28, weight: 600),
+              ),
+            ),
           ),
-          child: const Icon(AppIcons.add,
-              color: AppColors.textOnPrimary, size: 28),
         ),
       ),
     );

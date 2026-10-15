@@ -9,6 +9,16 @@ class StringFormatter {
     return value.toStringAsFixed(1);
   }
 
+  static const List<String> _months = [
+    'Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', //
+    'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember',
+  ];
+
+  /// Contoh: 14 Mei 1998
+  static String date(DateTime value) {
+    return '${value.day} ${_months[value.month - 1]} ${value.year}';
+  }
+
   static String titleCase(String text) {
     if (text.isEmpty) return text;
     return text

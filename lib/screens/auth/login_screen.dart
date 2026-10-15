@@ -1,139 +1,132 @@
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 
-import '../../core/constants/app_colors.dart';
 import '../../core/constants/app_icons.dart';
 import '../../core/constants/app_text_styles.dart';
+import '../../data/api/api_client.dart';
+import '../../data/stores/user_store.dart';
 import '../../routes/app_routes.dart';
+import '../../widgets/app_button.dart';
+import '../../widgets/app_snackbar.dart';
+import '../../widgets/app_text_field.dart';
+import '../../widgets/cute_avatar.dart';
+import 'widgets/auth_layout.dart';
+import 'widgets/auth_validators.dart';
 
-class LoginScreen extends StatelessWidget {
+class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
 
-  void _onMasukPressed(BuildContext context) {
+  @override
+  State<LoginScreen> createState() => _LoginScreenState();
+}
+
+class _LoginScreenState extends State<LoginScreen> {
+  final _formKey = GlobalKey<FormState>();
+  final _emailController = TextEditingController();
+  final _passwordController = TextEditingController();
+  late final TapGestureRecognizer _daftarRecognizer = TapGestureRecognizer()
+    ..onTap = _onDaftarPressed;
+
+  bool _passwordFocused = false;
+  bool _loading = false;
+
+  @override
+  void dispose() {
+    _emailController.dispose();
+    _passwordController.dispose();
+    _daftarRecognizer.dispose();
+    super.dispose();
+  }
+
+  Future<void> _onMasukPressed() async {
+    FocusScope.of(context).unfocus();
+    if (!(_formKey.currentState?.validate() ?? false)) {
+      AppSnackbar.show(context, 'Periksa kembali email dan kata sandimu',
+          type: AppSnackbarType.warning);
+      return;
+    }
+    setState(() => _loading = true);
+    try {
+      await UserStore.instance
+          .login(_emailController.text.trim(), _passwordController.text);
+    } on ApiException catch (e) {
+      if (!mounted) return;
+      setState(() => _loading = false);
+      AppSnackbar.show(context, e.message, type: AppSnackbarType.error);
+      return;
+    }
+    if (!mounted) return;
     Navigator.pushReplacementNamed(context, AppRoutes.home);
   }
 
-  void _onDaftarPressed(BuildContext context) {
+  void _onDaftarPressed() {
     Navigator.pushNamed(context, AppRoutes.register);
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: AppColors.background,
-      body: SafeArea(
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.fromLTRB(24, 24, 24, 24),
+    return AuthLayout(
+      mascot: CuteAvatarData.presets[0],
+      coverEyes: _passwordFocused,
+      bubbleText: _passwordFocused
+          ? 'Tenang, aku nggak ngintip kok!'
+          : 'Halo lagi! Siap masak hari ini?',
+      title: 'Masuk',
+      subtitle: 'Selamat datang kembali 👋',
+      form: Form(
+        key: _formKey,
+        child: AutofillGroup(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text('Masuk',
-                  style: AppTextStyles.heading1.copyWith(fontSize: 32)),
-              const SizedBox(height: 8),
-              Text('Selamat datang kembali 👋', style: AppTextStyles.subtitle),
-              const SizedBox(height: 32),
-              _buildLabel('Email'),
-              const SizedBox(height: 10),
-              _buildTextField(
-                hintText: 'Masukkan email kamu',
+              AppTextField(
+                label: 'Email',
+                hintText: 'nama@email.com',
                 prefixIcon: AppIcons.mail,
+                controller: _emailController,
+                keyboardType: TextInputType.emailAddress,
+                textInputAction: TextInputAction.next,
+                autofillHints: const [AutofillHints.email],
+                validator: AuthValidators.email,
               ),
-              const SizedBox(height: 22),
-              _buildLabel('Kata Sandi'),
-              const SizedBox(height: 10),
-              _buildTextField(
-                hintText: 'Masukkan kata sandi',
+              const SizedBox(height: 20),
+              AppTextField(
+                label: 'Kata Sandi',
+                hintText: 'Minimal 6 karakter',
                 prefixIcon: AppIcons.lock,
-                dummyDots: true,
-                suffixIcon: AppIcons.visibilityOff,
+                controller: _passwordController,
+                isPassword: true,
+                textInputAction: TextInputAction.done,
+                autofillHints: const [AutofillHints.password],
+                validator: AuthValidators.password,
+                onFocusChange: (f) => setState(() => _passwordFocused = f),
+                onSubmitted: (_) => _onMasukPressed(),
               ),
               const SizedBox(height: 32),
-              _buildMasukButton(context),
+              AppButton(
+                label: 'Masuk',
+                loading: _loading,
+                onPressed: _onMasukPressed,
+              ),
               const SizedBox(height: 20),
-              _buildDaftarLink(context),
+              Center(
+                child: Text.rich(
+                  TextSpan(
+                    style: AppTextStyles.bodyMedium,
+                    children: [
+                      const TextSpan(text: 'Belum punya akun? '),
+                      TextSpan(
+                        text: 'Daftar di sini',
+                        style: AppTextStyles.linkEmphasis,
+                        recognizer: _daftarRecognizer,
+                        mouseCursor: SystemMouseCursors.click,
+                      ),
+                    ],
+                  ),
+                ),
+              ),
             ],
           ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildLabel(String text) {
-    return Text(text, style: AppTextStyles.heading3);
-  }
-
-  Widget _buildTextField({
-    required String hintText,
-    required IconData prefixIcon,
-    bool dummyDots = false,
-    IconData? suffixIcon,
-  }) {
-    return Container(
-      height: 56,
-      width: double.infinity,
-      decoration: BoxDecoration(
-        color: AppColors.surfaceVariant,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppColors.border, width: 1),
-      ),
-      child: Row(
-        children: [
-          const SizedBox(width: 16),
-          Icon(prefixIcon, color: AppColors.textMuted, size: 22),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Text(
-              dummyDots ? '••••••' : hintText,
-              style: AppTextStyles.bodyLarge.copyWith(
-                fontSize: 15,
-                color: dummyDots ? AppColors.textPrimary : AppColors.textMuted,
-                letterSpacing: dummyDots ? 2 : 0,
-              ),
-            ),
-          ),
-          if (suffixIcon != null)
-            Padding(
-              padding: const EdgeInsets.only(right: 16),
-              child: Icon(suffixIcon, color: AppColors.textMuted, size: 22),
-            ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildMasukButton(BuildContext context) {
-    return SizedBox(
-      width: double.infinity,
-      height: 56,
-      child: ElevatedButton(
-        onPressed: () => _onMasukPressed(context),
-        style: ElevatedButton.styleFrom(
-          backgroundColor: AppColors.primary,
-          foregroundColor: AppColors.textOnPrimary,
-          shape:
-              RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-          elevation: 0,
-        ),
-        child:
-            Text('Masuk', style: AppTextStyles.button.copyWith(fontSize: 16)),
-      ),
-    );
-  }
-
-  Widget _buildDaftarLink(BuildContext context) {
-    return Center(
-      child: RichText(
-        text: TextSpan(
-          style: AppTextStyles.bodyMedium,
-          children: [
-            const TextSpan(text: 'Belum punya akun? '),
-            TextSpan(
-              text: 'Daftar di sini',
-              style: AppTextStyles.linkEmphasis,
-              recognizer: TapGestureRecognizer()
-                ..onTap = () => _onDaftarPressed(context),
-            ),
-          ],
         ),
       ),
     );
