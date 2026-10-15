@@ -4,10 +4,12 @@ Aplikasi mobile berbasis Flutter untuk menjelajahi berbagai resep makanan dan mi
 
 ## Anggota Kelompok
 
-- DANELLA ANDRITYA PUTRI
-- HAIKAL AHMAD EL SALMAN
-- RAFI RAMADHANA BUKARYO
-- REVO NOVANDRA
+| No | Nama | NIM |
+|---|---|---|
+| 1 | Rafi Ramadhana Bukaryo | 24051214180 |
+| 2 | Danella Andritya Putri | 24051214205 |
+| 3 | Haikal Ahmad El Salman | 24051214207 |
+| 4 | Revo Novandra | 24051214211 |
 
 ## Fitur
 
